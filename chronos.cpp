@@ -18,6 +18,7 @@ void HAL_SYSTICK_Callback(void)
 						activeChronos--;
 						delayCallback_Handle[i].delay = NOT_USE; // reset ? maybe periodic usage ?
 						delayCallback_Handle[i].callback();
+						delayCallback_Handle[i].callback = NULL;
 					}
 				}
 			}
@@ -27,7 +28,7 @@ void HAL_SYSTICK_Callback(void)
 
 static uint8_t getIndex(void) {
 	for(uint8_t i=0; i<MAX_CHRONOS;i++) {
-		if(delayCallback_Handle[i].delay == NOT_USE) {
+		if(delayCallback_Handle[i].callback == NULL) {
 			return i;
 		}
 	}
