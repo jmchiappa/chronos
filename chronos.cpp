@@ -77,11 +77,18 @@ void Chronos::attachInterrupt(uint32_t delay, callback_function_t callback) {
 		index = getIndex();
 		if(index!=NO_MORE_SPACE) {
 			tmpDelay = delay;
-			if(run)
+			if(run) {
 				delayCallback_Handle[index].delay = millis()+tmpDelay;
+				delayCallback_Handle[index].run = true;
+			}
 
 			delayCallback_Handle[index].callback = callback;
 			activeChronos++;
 		}
 	}
+
+}
+
+bool Chronos::isRunning(void) {
+	return run;
 }
