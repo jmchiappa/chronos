@@ -4,21 +4,22 @@
 /* define the maximum number of chronometers that could run simultaneously */
 #define MAX_CHRONOS	64
 
-#define NO_MORE_SPACE -1
-#define NOT_USE 0
+#define NO_MORE_SPACE MAX_CHRONOS
+#define NOT_USE -1
 
 #ifdef __cplusplus
 
 #include <functional>
 using callback_function_t = std::function<void(void)>;
 
-
 typedef struct  {
-  // Those 2 first fields must remain in this order at the beginning of the structure
-  // void    *__this;
-  // TIM_HandleTypeDef handle;
+	// absolute time to wait before calling callback
   uint32_t delay;
+	// flag set when activate
 	bool run;
+	// set once the delay is elapsed and callback has been called
+	bool isElapsed;
+	// function to call when the delay is elapsed
   callback_function_t callback;
 } delayCallbackObj_t;
 
@@ -68,7 +69,7 @@ class Chronos {
 		/* flag that indicates if chronometer is running (tru) or not (false) */
 		bool run = false;
 
-		int8_t index = -1;
+		int8_t index = NOT_USE;
 
 		uint32_t tmpDelay = 0;
 };
