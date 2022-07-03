@@ -19,6 +19,7 @@ void HAL_SYSTICK_Callback(void)
 						delayCallback_Handle[i].delay = NOT_USE; // reset ? maybe periodic usage ?
 						delayCallback_Handle[i].callback();
 						delayCallback_Handle[i].callback = NULL;
+						delayCallback_Handle[i].run = false;
 					}
 				}
 			}
