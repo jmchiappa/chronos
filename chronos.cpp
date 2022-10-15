@@ -17,10 +17,8 @@ void HAL_SYSTICK_Callback(void)
 			if(delayCallback_Handle[i].run) {
 				if(delayCallback_Handle[i].delay>0) {
 					if(getCurrentMillis()>delayCallback_Handle[i].delay) {
-						activeChronos--;
-						delayCallback_Handle[i].delay = 0; // reset ? maybe periodic usage ?
+						delayCallback_Handle[i].delay = getCurrentMillis()+delayCallback_Handle[i].userDelay; // prepare next tme slot
 						delayCallback_Handle[i].isElapsed = true;
-						delayCallback_Handle[i].run = false;
 						delayCallback_Handle[i].callback();
 					}
 				}
@@ -55,18 +53,31 @@ void Chronos::start(bool reset) {
 			elapsedTime = 0;
 		}
 		if(tmpDelay>0) {
-			delayCallback_Handle[index].delay = startTime+tmpDelay+elapsedTime;
+			delayCallback_Handle[index].delay = startTime+tmpDelay-elapsedTime;
 			delayCallback_Handle[index].run = true;
 		}
 	}
 	run = true;
 }
 
-void Chronos::stop() {
+void Chronos::pause() {
 	elapsedTime += millis() - startTime;
 	if(index != NOT_USE) {
 		delayCallback_Handle[index].run = false;
 		delayCallback_Handle[index].isElapsed = false;
+	}
+	run = false;
+}
+
+void Chronos::stop() {
+	elapsedTime = 0;
+	if(index != NOT_USE) {
+		delayCallback_Handle[index].run = false;
+		delayCallback_Handle[index].isElapsed = false;
+		delayCallback_Handle[index].delay = 0;
+		delayCallback_Handle[index].userDelay = 0;
+		tmpDelay=0;
+		activeChronos--;		
 	}
 	run = false;
 }
@@ -98,6 +109,7 @@ void Chronos::attachInterrupt(uint32_t delay, callback_function_t callback) {
 		if(delayCallback_Handle[index].isElapsed) {
 			delayCallback_Handle[index].isElapsed = false;
 			tmpDelay = delay;
+			delayCallback_Handle[index].userDelay = delay;
 			if(run) {
 				delayCallback_Handle[index].delay = millis()+tmpDelay;
 				delayCallback_Handle[index].run = true;

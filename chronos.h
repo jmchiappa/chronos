@@ -13,6 +13,8 @@
 using callback_function_t = std::function<void(void)>;
 
 typedef struct  {
+	// relative time to wait before calling callback, set by user
+  uint32_t userDelay;
 	// absolute time to wait before calling callback
   uint32_t delay;
 	// flag set when activate
@@ -39,9 +41,14 @@ class Chronos {
 		uint32_t getElapsedTime();
 
 		/**
-		 * stop timer. time is suspended
+		 * stop timer. time is reset. callback is cleared
 		 * */
 		void stop();
+
+		/**
+		 * pause timer. time is suspended. callback is still fired
+		 * */
+		void pause();
 
 		/**
 		 * reset time value
