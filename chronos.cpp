@@ -103,7 +103,6 @@ void Chronos::stop() {
 }
 
 void Chronos::reset() {
-	pinMode(LED_BUILTIN,OUTPUT);
 	startTime = getCurrentMillis();
 	elapsedTime = 0;
 }
@@ -120,8 +119,6 @@ void Chronos::attachInterrupt(uint32_t delay, callback_function_t callback) {
 	if(index == NO_MORE_SPACE)
 		return;
 	
-	digitalWrite(LED_BUILTIN,!digitalRead(LED_BUILTIN));
-
 	// if(delay>=0){
 	if(index==NOT_USE) {
 		// reserve a slot
