@@ -15,13 +15,13 @@ void HAL_SYSTICK_Callback(void)
 	if(activeChronos>0) {
 		for(uint8_t i=0; i<MAX_CHRONOS;i++) {
 			if(delayCallback_Handle[i].run) {
-				if(delayCallback_Handle[i].delay>0) {
+				// if(delayCallback_Handle[i].delay>0) {
 					if(getCurrentMillis()>delayCallback_Handle[i].delay) {
 						delayCallback_Handle[i].delay = getCurrentMillis()+delayCallback_Handle[i].userDelay; // prepare next tme slot
 						delayCallback_Handle[i].isElapsed = true;
 						delayCallback_Handle[i].callback();
 					}
-				}
+				// }
 			}
 		}
 	}
@@ -47,17 +47,16 @@ Chronos::Chronos() {
 }
 
 void Chronos::start(bool reset) {
-	if( (reset) || (run==false) ) {
+	if( run==false ) {
+		DBG_PRINTLN("run: ",run)
 		startTime = millis();
-		if(reset) {
-			elapsedTime = 0;
-		}
-		if(tmpDelay>0) {
-			delayCallback_Handle[index].delay = startTime+tmpDelay-elapsedTime;
-			delayCallback_Handle[index].run = true;
-		}
+		elapsedTime = 0;
+		// if(tmpDelay>0) {
+		delayCallback_Handle[index].delay = startTime+tmpDelay-elapsedTime;
+		delayCallback_Handle[index].run = true;
+		// }
+		run = true;
 	}
-	run = true;
 }
 
 void Chronos::pause() {
@@ -93,16 +92,21 @@ uint32_t Chronos::getElapsedTime() {
 
 void Chronos::attachInterrupt(uint32_t delay, callback_function_t callback) {
 	// nothign to do if there's no more space available
+	DBG_PRINTLN("delai: ",delay)
+	DBG_PRINTLN("delai: ",delay)
+	DBG_PRINTLN("index: ",index)
 	if(index == NO_MORE_SPACE)
 		return;
+	
 
-	if(delay>0){
+	// if(delay>=0){
 		if(index==NOT_USE) {
 			// reserve a slot
 			index = getIndex();
 			if(index==NO_MORE_SPACE) {
 				return;
 			}
+			DBG_PRINTLN("nouvel index: ",index)
 			delayCallback_Handle[index].isElapsed = true;
 			delayCallback_Handle[index].run = false;
 		}
@@ -110,14 +114,16 @@ void Chronos::attachInterrupt(uint32_t delay, callback_function_t callback) {
 			delayCallback_Handle[index].isElapsed = false;
 			tmpDelay = delay;
 			delayCallback_Handle[index].userDelay = delay;
+			DBG_PRINTLN("nouvel index: ",index)
 			if(run) {
 				delayCallback_Handle[index].delay = millis()+tmpDelay;
+				DBG_PRINTLN("delai enregistre: ",delayCallback_Handle[index].delay)
 				delayCallback_Handle[index].run = true;
 			}
 			delayCallback_Handle[index].callback = callback;
 			activeChronos++;
 		}
-	}
+	// }
 }
 
 bool Chronos::isRunning(void) {

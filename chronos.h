@@ -7,6 +7,15 @@
 #define NO_MORE_SPACE MAX_CHRONOS
 #define NOT_USE -1
 
+// #define DEBUG
+
+
+#ifdef DEBUG
+#	define DBG_PRINTLN(a,b)	{Serial.print(a);Serial.println(b);}
+#else
+#	define DBG_PRINTLN(a,b)	{}
+#endif
+
 #ifdef __cplusplus
 
 #include <functional>
