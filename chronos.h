@@ -22,6 +22,8 @@
 using callback_function_t = std::function<void(void)>;
 
 typedef struct  {
+	// absolute number of millis from the start call
+  uint32_t startTime;
 	// relative time to wait before calling callback, set by user
   uint32_t userDelay;
 	// absolute time to wait before calling callback
