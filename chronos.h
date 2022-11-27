@@ -69,7 +69,7 @@ class Chronos {
 		/**
 		 * attach callback which be called once the delay will be elapsed
 		 * */
-		void attachInterrupt(uint32_t delay, callback_function_t callback);
+		void attachInterrupt(int32_t delay, callback_function_t callback);
 
 		/**
 		 * return true if timer is running
