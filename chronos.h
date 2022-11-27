@@ -89,7 +89,7 @@ class Chronos {
 
 		int8_t index = NOT_USE;
 
-		uint32_t tmpDelay = 0;
+		// uint32_t tmpDelay = 0;
 };
 
 #endif /* __cplusplus */
