@@ -108,7 +108,7 @@ void Chronos::reset() {
 }
 
 uint32_t Chronos::getElapsedTime() {
-	return run ? getCurrentMillis()-elapsedTime : elapsedTime;
+	return run ? getDeltaTime(startTime) + elapsedTime : elapsedTime;
 }
 
 void Chronos::attachInterrupt(int32_t delay, callback_function_t callback) {
