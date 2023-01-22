@@ -18,7 +18,7 @@ uint32_t getDeltaTime(uint32_t previousTime) {
 	uint32_t time = getCurrentMillis();
 	uint32_t delta;
 	if(time<previousTime) {
-		delta = 0xFFFFFFFF - previousTime + time;
+		delta = 0xFFFFFFFFUL - previousTime + time;
 	} else {
 		delta = time - previousTime;
 	}
@@ -30,13 +30,11 @@ void HAL_SYSTICK_Callback(void)
 	if(activeChronos>0) {
 		for(uint8_t i=0; i<MAX_CHRONOS;i++) {
 			if(delayCallback_Handle[i].run) {
-				// if(delayCallback_Handle[i].delay>0) {
-					if(getDeltaTime(delayCallback_Handle[i].startTime) > delayCallback_Handle[i].userDelay) {
-						delayCallback_Handle[i].startTime = getCurrentMillis(); // prepare next tme slot
-						delayCallback_Handle[i].isElapsed = true;
-						delayCallback_Handle[i].callback();
-					}
-				// }
+				if(getDeltaTime(delayCallback_Handle[i].startTime) > delayCallback_Handle[i].userDelay) {
+					delayCallback_Handle[i].startTime = getCurrentMillis(); // prepare next tme slot
+					delayCallback_Handle[i].isElapsed = true;
+					delayCallback_Handle[i].callback();
+				}
 			}
 		}
 	}
@@ -58,23 +56,31 @@ Chronos::Chronos() {
 	startTime = 0;
 	elapsedTime = 0;
 	run = false;
-	// tmpDelay = 0;
 }
 
 void Chronos::start(bool reset) {
+	//this chrono should not be used
+	if( index == NO_MORE_SPACE)
+		return;
+	// if the chrono already runs, do nothing
 	if( run==false ) {
 		DBG_PRINTLN("run: ",run)
 		startTime = getCurrentMillis();
-		// elapsedTime = 0;
-		// if(tmpDelay>0) {
-		
+		// if no index has been already allocated, assign a slot
+		if( index != NOT_USE ) {
+			index= getIndex();
+			// sorry, no more chrono available
+			if( index == NO_MORE_SPACE)
+				return;
+		}
+		// this chrono was stopped before, so add it to active chrono
 		if(delayCallback_Handle[index].run == false) {
 			activeChronos++;
 		}
-
+		// initialize start up time
 		delayCallback_Handle[index].startTime = startTime-elapsedTime;
+		// activate the chrono
 		delayCallback_Handle[index].run = true;
-		// }
 		run = true;
 	}
 }
@@ -93,10 +99,8 @@ void Chronos::stop() {
 	if(index != NOT_USE) {
 		delayCallback_Handle[index].run = false;
 		delayCallback_Handle[index].isElapsed = false;
-		// delayCallback_Handle[index].delay = 0;
 		delayCallback_Handle[index].userDelay = 0;
 		delayCallback_Handle[index].startTime = 0;
-		// tmpDelay=0;
 		activeChronos--;		
 	}
 	run = false;
@@ -120,34 +124,24 @@ void Chronos::attachInterrupt(int32_t delay, callback_function_t callback) {
 		return;
 	if(delay<0) delay=0;
 	
-	// if(delay>=0){
 	if(index==NOT_USE) {
-		// reserve a slot
+		// reserve a slot if available
 		index = getIndex();
 		if(index==NO_MORE_SPACE) {
 			return;
 		}
 		DBG_PRINTLN("nouvel index: ",index)
-		delayCallback_Handle[index].isElapsed = true;
 		delayCallback_Handle[index].run = false;
 	}
-	if(delayCallback_Handle[index].isElapsed) {
-		delayCallback_Handle[index].isElapsed = false;
-		// tmpDelay = delay;
-	}
+	delayCallback_Handle[index].isElapsed = false;
 	delayCallback_Handle[index].userDelay = delay;
 	DBG_PRINTLN("nouvel index: ",index)
 	DBG_PRINTLN("delai enregistre: ",delayCallback_Handle[index].userDelay)
-	
-
 	if(run) {
-	// 	delayCallback_Handle[index].delay = tmpDelay;
 		delayCallback_Handle[index].run = true;
 	}
 
-
 	delayCallback_Handle[index].callback = callback;
-	// }
 }
 
 bool Chronos::isRunning(void) {
