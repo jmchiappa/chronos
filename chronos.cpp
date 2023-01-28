@@ -114,7 +114,7 @@ void Chronos::stop() {
 	if(index != NOT_USE && delayCallback_Handle[index].startTime>0) {
 		delayCallback_Handle[index].run = false;
 		delayCallback_Handle[index].isElapsed = false;
-		delayCallback_Handle[index].userDelay = 0;
+		// delayCallback_Handle[index].userDelay = 0;
 		delayCallback_Handle[index].startTime = 0;
 		activeChronos--;		
 	}
@@ -132,9 +132,9 @@ uint32_t Chronos::getElapsedTime() {
 
 void Chronos::attachInterrupt(int32_t delay, callback_function_t callback) {
 	// nothign to do if there's no more space available
-	DBG_PRINTLN("delai: ",delay)
-	DBG_PRINTLN("delai: ",delay)
-	DBG_PRINTLN("index: ",index)
+	// DBG_PRINTLN("delai: ",delay)
+	// DBG_PRINTLN("delai: ",delay)
+	// DBG_PRINTLN("index: ",index)
 	if(index == NO_MORE_SPACE)
 		return;
 	if(delay<0) delay=0;
@@ -145,17 +145,17 @@ void Chronos::attachInterrupt(int32_t delay, callback_function_t callback) {
 		if(index==NO_MORE_SPACE) {
 			return;
 		}
-		DBG_PRINTLN("nouvel index: ",index)
+		// DBG_PRINTLN("nouvel index: ",index)
 		delayCallback_Handle[index].run = false;
 	}
 	delayCallback_Handle[index].isElapsed = false;
 	delayCallback_Handle[index].userDelay = delay;
-	DBG_PRINTLN("index: ",index)
-	DBG_PRINTLN("delai enregistre: ",delayCallback_Handle[index].userDelay)
+	// DBG_PRINTLN("index: ",index)
+	// DBG_PRINTLN("delai enregistre: ",delayCallback_Handle[index].userDelay)
 	if(run) {
 		delayCallback_Handle[index].run = true;
 	}
-	DBG_PRINTLN("run : ",delayCallback_Handle[index].run)
+	// DBG_PRINTLN("run : ",delayCallback_Handle[index].run)
 	delayCallback_Handle[index].callback = callback;
 }
 
