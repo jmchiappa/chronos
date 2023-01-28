@@ -2,6 +2,12 @@
 #include "clock.h"
 #include "chronos.h"
 
+#ifdef DEBUG
+# include "core_debug.h"
+# define COREDBG(a) {core_debug(a);}
+#else
+# define COREDBG(a)
+#endif
 static delayCallbackObj_t delayCallback_Handle[MAX_CHRONOS] = {NULL};
 
 static uint8_t indexChronosCallback=0;
@@ -29,7 +35,9 @@ void HAL_SYSTICK_Callback(void)
 {
 	if(activeChronos>0) {
 		for(uint8_t i=0; i<MAX_CHRONOS;i++) {
-			if(delayCallback_Handle[i].run) {
+			// only check time if callback has been attached, otherwise use as free run timer
+			if(delayCallback_Handle[i].run && delayCallback_Handle[i].callback)
+			{
 				if(getDeltaTime(delayCallback_Handle[i].startTime) > delayCallback_Handle[i].userDelay) {
 					delayCallback_Handle[i].startTime = getCurrentMillis(); // prepare next tme slot
 					delayCallback_Handle[i].isElapsed = true;
@@ -64,10 +72,9 @@ void Chronos::start(bool reset) {
 		return;
 	// if the chrono already runs, do nothing
 	if( run==false ) {
-		DBG_PRINTLN("run: ",run)
 		startTime = getCurrentMillis();
 		// if no index has been already allocated, assign a slot
-		if( index != NOT_USE ) {
+		if( index == NOT_USE ) {
 			index= getIndex();
 			// sorry, no more chrono available
 			if( index == NO_MORE_SPACE)
@@ -80,9 +87,16 @@ void Chronos::start(bool reset) {
 		// initialize start up time
 		delayCallback_Handle[index].startTime = startTime-elapsedTime;
 		// activate the chrono
+
 		delayCallback_Handle[index].run = true;
 		run = true;
 	}
+	DBG_PRINTLN("Chronos actifs: ",activeChronos)
+	DBG_PRINTLN("run: ",run)
+	DBG_PRINTLN("delayCallback_Handle[index].run: ",delayCallback_Handle[index].run)
+	DBG_PRINTLN("startTime: ",startTime)
+	DBG_PRINTLN("delayCallback_Handle[index].startTime: ",delayCallback_Handle[index].startTime)
+	DBG_PRINTLN("delayCallback_Handle[index].userDelay: ",delayCallback_Handle[index].userDelay)
 }
 
 void Chronos::pause() {
@@ -135,12 +149,12 @@ void Chronos::attachInterrupt(int32_t delay, callback_function_t callback) {
 	}
 	delayCallback_Handle[index].isElapsed = false;
 	delayCallback_Handle[index].userDelay = delay;
-	DBG_PRINTLN("nouvel index: ",index)
+	DBG_PRINTLN("index: ",index)
 	DBG_PRINTLN("delai enregistre: ",delayCallback_Handle[index].userDelay)
 	if(run) {
 		delayCallback_Handle[index].run = true;
 	}
-
+	DBG_PRINTLN("run : ",delayCallback_Handle[index].run)
 	delayCallback_Handle[index].callback = callback;
 }
 
