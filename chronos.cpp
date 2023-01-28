@@ -100,6 +100,7 @@ void Chronos::start(bool reset) {
 }
 
 void Chronos::pause() {
+	if(!run) return;
 	elapsedTime += getDeltaTime(startTime);
 	if(index != NOT_USE) {
 		delayCallback_Handle[index].run = false;
@@ -110,7 +111,7 @@ void Chronos::pause() {
 
 void Chronos::stop() {
 	elapsedTime = 0;
-	if(index != NOT_USE) {
+	if(index != NOT_USE && delayCallback_Handle[index].startTime>0) {
 		delayCallback_Handle[index].run = false;
 		delayCallback_Handle[index].isElapsed = false;
 		delayCallback_Handle[index].userDelay = 0;
