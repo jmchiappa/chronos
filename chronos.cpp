@@ -124,6 +124,9 @@ void Chronos::stop() {
 void Chronos::reset() {
 	startTime = getCurrentMillis();
 	elapsedTime = 0;
+	if(index != NOT_USE) {
+		delayCallback_Handle[index].startTime = startTime;		
+	}
 }
 
 uint32_t Chronos::getElapsedTime() {
