@@ -36,7 +36,7 @@ void HAL_SYSTICK_Callback(void)
 	if(activeChronos>0) {
 		for(uint8_t i=0; i<MAX_CHRONOS;i++) {
 			// only check time if callback has been attached, otherwise use as free run timer
-			if(delayCallback_Handle[i].run && delayCallback_Handle[i].callback)
+			if(delayCallback_Handle[i].run && delayCallback_Handle[i].callback && !delayCallback_Handle[i].isElapsed)
 			{
 				if(getDeltaTime(delayCallback_Handle[i].startTime) > delayCallback_Handle[i].userDelay) {
 					delayCallback_Handle[i].startTime = getCurrentMillis(); // prepare next tme slot
@@ -104,7 +104,7 @@ void Chronos::pause() {
 	elapsedTime += getDeltaTime(startTime);
 	if(index != NOT_USE) {
 		delayCallback_Handle[index].run = false;
-		delayCallback_Handle[index].isElapsed = false;
+		// delayCallback_Handle[index].isElapsed = false;
 	}
 	run = false;
 }
