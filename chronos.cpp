@@ -39,7 +39,7 @@ void HAL_SYSTICK_Callback(void)
 			if(delayCallback_Handle[i].run && delayCallback_Handle[i].callback && !delayCallback_Handle[i].isElapsed)
 			{
 				if(getDeltaTime(delayCallback_Handle[i].startTime) > delayCallback_Handle[i].userDelay) {
-					delayCallback_Handle[i].startTime = getCurrentMillis(); // prepare next tme slot
+					//delayCallback_Handle[i].startTime = getCurrentMillis(); // prepare next tme slot
 					delayCallback_Handle[i].isElapsed = true;
 					delayCallback_Handle[i].callback();
 				}
