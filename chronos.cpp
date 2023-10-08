@@ -125,7 +125,8 @@ void Chronos::reset() {
 	startTime = getCurrentMillis();
 	elapsedTime = 0;
 	if(index != NOT_USE) {
-		delayCallback_Handle[index].startTime = startTime;		
+		delayCallback_Handle[index].startTime = startTime;
+		delayCallback_Handle[index].isElapsed = false;
 	}
 }
 
