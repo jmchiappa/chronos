@@ -34,6 +34,8 @@ typedef struct  {
 	bool isElapsed;
 	// function to call when the delay is elapsed
   callback_function_t callback;
+	// when callback must be processed, flag is true, false otherwise ( callback has been executed or not elapsed yet)
+	bool callbackMustBeExecuted;
 } delayCallbackObj_t;
 
 class Chronos {
