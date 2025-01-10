@@ -11,16 +11,42 @@
 
 #define NO_CHRONO_INPROGRESS (-1)
 
+/**
+ * tableau d'objet contenant les contextes des chronos
+ */
 static delayCallbackObj_t delayCallback_Handle[MAX_CHRONOS] = {NULL};
 
+/** --------
+ *   VARIABLES GLOBALES
+ *  --------
+ */ 
+
+/**
+ * index du tableau d'objet chronos. pointe sur le dernier emplacement libre
+ */
 static uint8_t indexChronosCallback=0;
 
+/**
+ * Indique le nombre de chronos actifs
+ */
 static uint8_t activeChronos = 0;
 
+/**
+ * index du chrono pour lequel la callback est en cours d'exécution
+ * Si pas de chrono en cours d'exécution, = NO_CHRONO_INPROGRESS
+ */
 static int8_t indexOfChronoInProgress = NO_CHRONO_INPROGRESS;
 
+static bool chronoCallFromSWI = false;
+
+/**
+ * Définition de l'EXTI utilisé pour redescendre le niveau d'interruption
+ */
 static EXTI_HandleTypeDef hexti;
 
+/**
+ * booléen indiquant si l'EXTI a été utilisé ou non
+ */
 static bool EXTIinitialized = false;
 
 /**
@@ -51,6 +77,7 @@ void HAL_SYSTICK_Callback(void)
 			// check if this chrono has already elapsed and put in the queue
 			if( indexOfChronoInProgress==NO_CHRONO_INPROGRESS && delayCallback_Handle[i].callbackMustBeExecuted) {
 				delayCallback_Handle[i].callbackMustBeExecuted = false;
+				chronoCallFromSWI = true;
 				indexOfChronoInProgress = i;
 				HAL_EXTI_GenerateSWI(&hexti);
 			}
@@ -65,6 +92,7 @@ void HAL_SYSTICK_Callback(void)
 					if(indexOfChronoInProgress == NO_CHRONO_INPROGRESS) {
 						indexOfChronoInProgress = i;
 						delayCallback_Handle[i].callbackMustBeExecuted = false;
+						chronoCallFromSWI = true;
 						HAL_EXTI_GenerateSWI(&hexti);
 					} else {
 						delayCallback_Handle[i].callbackMustBeExecuted = true;
@@ -81,10 +109,10 @@ void HAL_SYSTICK_Callback(void)
  * All delay functions are now usable
  */
 extern "C" {
-  void RTC_Alarm_IRQHandler(void)
+  void CHRONO_IRQHandler(void)
   {
-    bool is_swi = (EXTI->SWIER1 & 0x00040000u) != 0 ; // RTC Alarm SWI : EXTI line 18
-    if(is_swi) {
+    if(chronoCallFromSWI) {
+			chronoCallFromSWI = false;
 			delayCallback_Handle[indexOfChronoInProgress].callback();
 			indexOfChronoInProgress = NO_CHRONO_INPROGRESS;
     }
@@ -112,7 +140,7 @@ Chronos::Chronos() {
 
 static void initChronoEXTI(void) {
 		EXTI_ConfigTypeDef extiConfig = {
-		EXTI_LINE_18,      /*!< The Exti line to be configured. This parameter
+		EXTI_LINE_16,      /*!< The Exti line to be configured. This parameter
 														can be a value of @ref EXTI_Line */
 		EXTI_MODE_INTERRUPT,      /*!< The Exit Mode to be configured for a core.
 														This parameter can be a combination of @ref EXTI_Mode */
@@ -120,8 +148,8 @@ static void initChronoEXTI(void) {
 														can be a value of @ref EXTI_Trigger */
 		};
 		
-		HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 15, 0);
-		HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
+		HAL_NVIC_SetPriority(CHRONO_EXTI_IRQn, 1, 0);
+		HAL_NVIC_EnableIRQ(CHRONO_EXTI_IRQn);
 		HAL_EXTI_SetConfigLine(&hexti , &extiConfig);
 		EXTIinitialized = true;
 }

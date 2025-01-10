@@ -1,6 +1,7 @@
 #ifndef CHRONOS_H_
 #define CHRONOS_H_
 
+#include "chrono_exti_def.h"
 /* define the maximum number of chronometers that could run simultaneously */
 #define MAX_CHRONOS	64
 
