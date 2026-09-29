@@ -112,6 +112,7 @@ void Chronos::pause() {
 void Chronos::stop() {
 	elapsedTime = 0;
 	if(index != NOT_USE && delayCallback_Handle[index].startTime>0) {
+		_isElapsed = delayCallback_Handle[index].isElapsed;
 		delayCallback_Handle[index].run = false;
 		delayCallback_Handle[index].isElapsed = false;
 		// delayCallback_Handle[index].userDelay = 0;
@@ -127,6 +128,7 @@ void Chronos::reset() {
 	if(index != NOT_USE) {
 		delayCallback_Handle[index].startTime = startTime;
 		delayCallback_Handle[index].isElapsed = false;
+		_isElapsed = false;
 	}
 }
 
@@ -152,6 +154,7 @@ void Chronos::attachInterrupt(int32_t delay, callback_function_t callback) {
 		// DBG_PRINTLN("nouvel index: ",index)
 		delayCallback_Handle[index].run = false;
 	}
+	_isElapsed = false;
 	delayCallback_Handle[index].isElapsed = false;
 	delayCallback_Handle[index].userDelay = delay;
 	// DBG_PRINTLN("index: ",index)
@@ -165,4 +168,9 @@ void Chronos::attachInterrupt(int32_t delay, callback_function_t callback) {
 
 bool Chronos::isRunning(void) {
 	return run;
+}
+
+bool Chronos::isElapsed() {
+	if(index == NOT_USE) return true;
+	return _isElapsed;
 }

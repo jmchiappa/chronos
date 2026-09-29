@@ -77,6 +77,11 @@ class Chronos {
 		 * */
 		bool isRunning();
 	
+		/**
+		 * return true if timer has expired
+		 * false otherwise
+		 * */
+		bool isElapsed();
 	private:
 		/* current time when start is called */ 
 		uint32_t startTime = 0;
@@ -89,7 +94,7 @@ class Chronos {
 
 		int8_t index = NOT_USE;
 
-		// uint32_t tmpDelay = 0;
+		bool _isElapsed = true;
 };
 
 #endif /* __cplusplus */
